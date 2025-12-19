@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+
+.pr-merged-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 2s ease-in;
+}
+
+.pr-merged-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.pr-merged-text {
+    font-family: 'Cinzel', serif;
+    color: #dbb366; /* Gold-ish color */
+    font-size: 6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+    text-shadow: 0 0 20px rgba(219, 179, 102, 0.6), 0 0 40px rgba(0, 0, 0, 0.8);
+    letter-spacing: 0.2em;
+    transform: scale(1.5);
+    opacity: 0;
+    transition: transform 0.2s cubic-bezier(0.1, 0.1, 0.1, 1), opacity 0.5s ease-in;
+}
+
+.pr-merged-overlay.show .pr-merged-text {
+    transform: scale(1);
+    opacity: 1;
+    transition: transform 3s ease-out, opacity 1s ease-in;
+}
+
+.pr-merged-subtext {
+    position: absolute;
+    bottom: 30%;
+    font-family: 'Cinzel', serif;
+    color: #cccccc;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    transition: opacity 1s ease-in 1s; /* Delay the subtext */
+}
+
+.pr-merged-overlay.show .pr-merged-subtext {
+    opacity: 1;
+}
+
+/* Optional: Add a yellow bar/light flare effect */
+.pr-merged-flare {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #dbb366, transparent);
+    transform: scaleX(0);
+    opacity: 0;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-in;
+}
+
+.pr-merged-overlay.show .pr-merged-flare {
+    transform: scaleX(1);
+    opacity: 0.8;
+    transition: transform 0.8s ease-out 0.2s, opacity 0.2s ease-in;
+}

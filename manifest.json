@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "PR Merged - Dark Souls Style",
+  "version": "1.0",
+  "description": "Displays a Dark Souls style 'PR MERGED' animation when you merge a pull request.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://github.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+        "resources": ["victory.mp3"],
+        "matches": ["https://github.com/*"]
+    }
+  ]
+}
