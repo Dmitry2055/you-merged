@@ -16,7 +16,7 @@ function createOverlay() {
     // Optional subtext
     const subtext = document.createElement('div');
     subtext.className = 'pr-merged-subtext';
-    subtext.innerText = 'VICTORY ACHIEVED';
+    subtext.innerText = 'PRODUCT ADVANCED';
 
     overlay.appendChild(flare);
     overlay.appendChild(text);
