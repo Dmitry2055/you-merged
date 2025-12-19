@@ -10,7 +10,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 99999;
+    z-index: 2147483647;
     opacity: 0;
     pointer-events: none;
     transition: opacity 2s ease-in;
@@ -23,7 +23,8 @@
 
 .pr-merged-text {
     font-family: 'Cinzel', serif;
-    color: #dbb366; /* Gold-ish color */
+    color: #dbb366;
+    /* Gold-ish color */
     font-size: 6rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -49,7 +50,8 @@
     font-size: 1.5rem;
     letter-spacing: 0.1em;
     opacity: 0;
-    transition: opacity 1s ease-in 1s; /* Delay the subtext */
+    transition: opacity 1s ease-in 1s;
+    /* Delay the subtext */
 }
 
 .pr-merged-overlay.show .pr-merged-subtext {
