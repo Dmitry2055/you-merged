@@ -8,7 +8,7 @@ This Chrome extension plays a "Souls"-like style victory animation and sound whe
 2.  Enable **Developer mode** in the top right corner.
 3.  Click **Load unpacked**.
 4.  Select the `chrome_pr_merged` directory:
-    `/.../chrome_pr_merged`
+    `/.../you_merged`
 
 ## Configuration (Sound)
 
