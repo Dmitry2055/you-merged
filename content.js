@@ -16,7 +16,7 @@ function createOverlay() {
     // Optional subtext
     const subtext = document.createElement('div');
     subtext.className = 'pr-merged-subtext';
-    subtext.innerText = 'VICTORY ACHIEVED';
+    subtext.innerText = 'PRODUCT ADVANCED';
 
     overlay.appendChild(flare);
     overlay.appendChild(text);
@@ -32,9 +32,11 @@ function playSound() {
         const audioUrl = chrome.runtime.getURL('victory.mp3');
         const audio = new Audio(audioUrl);
         audio.volume = 0.5;
-        audio.play().catch(e => console.log('Audio play failed (user interaction needed?):', e));
+        audio.play().catch(e => {
+            // Autoplay policy might block this
+        });
     } catch (e) {
-        console.error('Error playing sound:', e);
+        // console.error('Error playing sound:', e);
     }
 }
 
@@ -76,7 +78,7 @@ function getCurrentStatus() {
         const title = header.getAttribute('title');
         if (title === 'Status: Merged') return 'merged';
         if (title === 'Status: Open') return 'open';
-        if (title === 'Status: Closed') return 'closed'; // or merged
+        if (title === 'Status: Closed') return 'closed';
     }
 
     return 'unknown';
@@ -85,8 +87,6 @@ function getCurrentStatus() {
 function triggerAnimation() {
     if (hasPlayed) return;
     hasPlayed = true;
-
-    console.log('PR Merged! Triggering Soul-like animation...');
 
     playSound();
 
@@ -108,18 +108,12 @@ function triggerAnimation() {
             overlay.remove();
             // Do NOT reset hasPlayed = false here. 
             // We only want it to play once per session/page load.
-            // If the user un-merges and re-merges (rare), a reload is usually needed anyway.
         }, 2000);
     }, 5000);
 }
 
 function checkStatus() {
     const currentStatus = getCurrentStatus();
-
-    // Log status change for debugging
-    if (currentStatus !== lastStatus && currentStatus !== 'unknown') {
-        console.log(`PR Status Change: ${lastStatus} -> ${currentStatus}`);
-    }
 
     // Logic: Only play if we transition from 'open' to 'merged'.
     // If we load the page and it is already 'merged' (unknown -> merged), we DO NOT play.
@@ -132,8 +126,6 @@ function checkStatus() {
         }
     }
 
-    // Update state, but ignore 'unknown' intermediate states if we already have a known state
-    // (e.g. during a partial re-render) - though usually strictly following DOM is safer.
     if (currentStatus !== 'unknown') {
         lastStatus = currentStatus;
     }
@@ -157,4 +149,3 @@ observer.observe(document.body, {
 // Initial check
 checkStatus();
 
-console.log('Dark Souls PR Extension loaded.');

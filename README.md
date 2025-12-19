@@ -17,13 +17,11 @@ The extension comes with a placeholder for the victory sound. To enable the actu
 2.  Replace the `victory.mp3` file in the project folder with your file.
 3.  Reload the extension in `chrome://extensions` (click the refresh icon).
 
-## Usage
+## How to Test (Without Merging)
 
-1.  Go to any GitHub Pull Request page.
-2.  Merge the Pull Request.
-3.  Enjoy the victory!
+You can simulate a merge by manipulating the DOM:
+1.  Go to an **Open** PR.
+2.  Use DevTools to find the status badge (`State--open`).
+3.  Change the classes to `State--merged` (and `State--purple`), and change the text to "Merged".
+4.  The extension will detect the change and trigger.
 
-## Troubleshooting
-
--   **No sound?** Make sure you replaced `victory.mp3` with a valid audio file. Also, check if you have interacted with the page (Chrome blocks autoplay audio until user interaction).
--   **No animation?** The extension looks for the purple "Merged" badge. If GitHub updates their UI, this might need an update.
