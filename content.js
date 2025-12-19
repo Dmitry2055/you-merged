@@ -38,11 +38,55 @@ function playSound() {
     }
 }
 
+let lastStatus = 'unknown'; // 'unknown', 'open', 'merged', 'closed'
+
+/**
+ * Helper to determine current PR status from DOM
+ */
+function getCurrentStatus() {
+    // 1. Check for Merged Badge
+    const mergedBadge = document.querySelector('.State--merged, .State.State--purple');
+    if (mergedBadge && mergedBadge.textContent.trim().toLowerCase().includes('merged')) {
+        return 'merged';
+    }
+
+    // 2. Check for Open Badge
+    const openBadge = document.querySelector('.State--open, .State.State--green');
+    if (openBadge && openBadge.textContent.trim().toLowerCase().includes('open')) {
+        return 'open';
+    }
+
+    // 3. Check for Closed Badge (red)
+    const closedBadge = document.querySelector('.State--closed, .State.State--red');
+    if (closedBadge && closedBadge.textContent.trim().toLowerCase().includes('closed')) {
+        return 'closed';
+    }
+
+    // 4. Fallback: Check Timeline for "successfully merged" (strong indicator of merge)
+    const timelineItems = document.querySelectorAll('.TimelineItem-body, .timeline-comment-header-text');
+    for (const item of timelineItems) {
+        if (item.textContent.includes('Pull request successfully merged and closed')) {
+            return 'merged';
+        }
+    }
+
+    // 5. Fallback: Title attributes
+    const header = document.querySelector('.gh-header-meta .State');
+    if (header) {
+        const title = header.getAttribute('title');
+        if (title === 'Status: Merged') return 'merged';
+        if (title === 'Status: Open') return 'open';
+        if (title === 'Status: Closed') return 'closed'; // or merged
+    }
+
+    return 'unknown';
+}
+
 function triggerAnimation() {
     if (hasPlayed) return;
     hasPlayed = true;
 
-    console.log('PR Merged! Triggering Dark Souls animation...');
+    console.log('PR Merged! Triggering Soul-like animation...');
 
     playSound();
 
@@ -62,52 +106,36 @@ function triggerAnimation() {
         // Wait for fade out
         setTimeout(() => {
             overlay.remove();
-            hasPlayed = false; // Reset so it can play again if status toggles (unlikely but possible) 
+            // Do NOT reset hasPlayed = false here. 
+            // We only want it to play once per session/page load.
+            // If the user un-merges and re-merges (rare), a reload is usually needed anyway.
         }, 2000);
     }, 5000);
 }
 
 function checkStatus() {
-    // Debug logging
-    // console.log('Checking PR status...');
+    const currentStatus = getCurrentStatus();
 
-    let isMerged = false;
-
-    // Selector 1: The main status badge
-    // Based on user screenshot: span.State.State--merged inside .gh-header-meta
-    const statusBadge = document.querySelector('.State--merged, .State.State--purple');
-    if (statusBadge && statusBadge.textContent.trim().toLowerCase().includes('merged')) {
-        console.log('PR_MERGED_EXTENSION: Detected merged status via badge:', statusBadge);
-        isMerged = true;
+    // Log status change for debugging
+    if (currentStatus !== lastStatus && currentStatus !== 'unknown') {
+        console.log(`PR Status Change: ${lastStatus} -> ${currentStatus}`);
     }
 
-    // Selector 2: The Timeline Event for merging
-    if (!isMerged) {
-        // Look for the text "Pull request successfully merged and closed"
-        const timelineItems = document.querySelectorAll('.TimelineItem-body, .timeline-comment-header-text');
-        for (const item of timelineItems) {
-            if (item.textContent.includes('Pull request successfully merged and closed')) {
-                console.log('PR_MERGED_EXTENSION: Detected merged status via timeline event');
-                isMerged = true;
-                break;
-            }
+    // Logic: Only play if we transition from 'open' to 'merged'.
+    // If we load the page and it is already 'merged' (unknown -> merged), we DO NOT play.
+    if (currentStatus === 'merged') {
+        if (lastStatus === 'open') {
+            triggerAnimation();
+        } else if (lastStatus === 'unknown') {
+            // Initial load is merged. Mark as played silently so we don't trigger later randomly.
+            hasPlayed = true;
         }
     }
 
-    // Selector 3: Data attribute on the PR header (sometimes present)
-    if (!isMerged) {
-        const header = document.querySelector('.gh-header-meta .State');
-        if (header && header.getAttribute('title') === 'Status: Merged') {
-            console.log('PR_MERGED_EXTENSION: Detected merged status via title attribute');
-            isMerged = true;
-        }
-    }
-
-    if (isMerged) {
-        // For debugging/demo purposes, we allow it to play again on reload.
-        // The original logic prevented it via sessionStorage, which made testing hard.
-        // We still check 'hasPlayed' in triggerAnimation to prevent double loop in one session.
-        triggerAnimation();
+    // Update state, but ignore 'unknown' intermediate states if we already have a known state
+    // (e.g. during a partial re-render) - though usually strictly following DOM is safer.
+    if (currentStatus !== 'unknown') {
+        lastStatus = currentStatus;
     }
 }
 
