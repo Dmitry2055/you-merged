@@ -68,28 +68,46 @@ function triggerAnimation() {
 }
 
 function checkStatus() {
-    // Selectors for GitHub PR status
-    // 1. The main status badge in the header
-    const statusBadge = document.querySelector('.State.State--purple, .gh-header-meta .State--purple');
+    // Debug logging
+    // console.log('Checking PR status...');
 
+    let isMerged = false;
+
+    // Selector 1: The main status badge
+    // Based on user screenshot: span.State.State--merged inside .gh-header-meta
+    const statusBadge = document.querySelector('.State--merged, .State.State--purple');
     if (statusBadge && statusBadge.textContent.trim().toLowerCase().includes('merged')) {
-        // Check if we already triggered for this instance? 
-        // We only want to trigger if we witnessed the transition OR if we want to confirm it works.
-        // For now, let's trigger it. But to avoid looping, we rely on 'hasPlayed'.
-        // However, if I refresh the page on a merged PR, it will play.
-        // Maybe we want to be smarter: only play if we saw it NOT merged before?
-        // Since the request says "Trigger shall be PR being merged", playing on load of an already merged PR might be annoying.
-        // I'll add a check: if detecting on initial load, maybe don't play? 
-        // But for testing, it's easier if it plays.
-        // I'll stick to: if it's merged, trigger. A simple sessionStorage flag could prevent re-triggering on reload?
+        console.log('PR_MERGED_EXTENSION: Detected merged status via badge:', statusBadge);
+        isMerged = true;
+    }
 
-        const prId = window.location.pathname; // unique enough for now
-        const sessionKey = `pr-merged-played-${prId}`;
-
-        if (!sessionStorage.getItem(sessionKey)) {
-            triggerAnimation();
-            sessionStorage.setItem(sessionKey, 'true');
+    // Selector 2: The Timeline Event for merging
+    if (!isMerged) {
+        // Look for the text "Pull request successfully merged and closed"
+        const timelineItems = document.querySelectorAll('.TimelineItem-body, .timeline-comment-header-text');
+        for (const item of timelineItems) {
+            if (item.textContent.includes('Pull request successfully merged and closed')) {
+                console.log('PR_MERGED_EXTENSION: Detected merged status via timeline event');
+                isMerged = true;
+                break;
+            }
         }
+    }
+
+    // Selector 3: Data attribute on the PR header (sometimes present)
+    if (!isMerged) {
+        const header = document.querySelector('.gh-header-meta .State');
+        if (header && header.getAttribute('title') === 'Status: Merged') {
+            console.log('PR_MERGED_EXTENSION: Detected merged status via title attribute');
+            isMerged = true;
+        }
+    }
+
+    if (isMerged) {
+        // For debugging/demo purposes, we allow it to play again on reload.
+        // The original logic prevented it via sessionStorage, which made testing hard.
+        // We still check 'hasPlayed' in triggerAnimation to prevent double loop in one session.
+        triggerAnimation();
     }
 }
 
